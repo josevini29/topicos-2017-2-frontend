@@ -47,6 +47,13 @@ class TodoPage extends Component {
         }
     }
 
+    onEditarClick = (todo) => {
+        this.setState({
+            showForm: true,
+            selectedTodo: todo
+        })
+    }
+
     renderTodo = () => {
         const todos = this.state.todos;
 
@@ -59,7 +66,10 @@ class TodoPage extends Component {
                     <td>{todo.completed}</td>
                     <td>
                         <ButtonGroup bsSize="small">
-                            <Button bsStyle="warning">Editar</Button>
+                            <Button bsStyle="warning"
+                                onClick={() => this.onEditarClick(todo)}>
+                                Editar
+                                </Button>
                             <Button bsStyle="danger"
                                 onClick={() => this.onExcluirClick(todo)}>
                                 Excluir
@@ -74,19 +84,46 @@ class TodoPage extends Component {
     }
 
     onNovaTarefaClick = () => {
-        this.setState({ showForm: true })
+        this.setState({
+            showForm: true,
+            selectedTodo: {
+                id: '',
+                title: '',
+                description: ''
+            }
+        })
     }
 
     onFormClose = () => {
         this.setState({ showForm: false })
     }
 
-    onTodoSave = (title, description) => {
+    onTodoSave = (id, title, description) => {
         const data = {
             title: title,
             description: description
         };
+        if (id) {
+            this.putTodo(id, data);
+        } else {
+            this.postTodo(data);
+        }
 
+    }
+
+    putTodo = (id,data) => { 
+        axios.put('http://localhost:3001/todos/'+id, data)
+        .then((response) => {
+            if (response.status === 200){
+                this.setState({showForm: false});
+                return this.getTodos();
+            }
+        }).catch((ex) => {
+            console.warn(ex);
+        })
+    }
+
+    postTodo = (data) => {
         axios.post('http://localhost:3001/todos', data)
             .then((response) => {
                 if (response.status === 201) {
@@ -122,8 +159,10 @@ class TodoPage extends Component {
                     </tbody>
                 </Table>
 
-                <TodoForm showForm={this.state.showForm} onClose={this.onFormClose}
-                    onSave={this.onTodoSave} />
+                <TodoForm showForm={this.state.showForm}
+                    onClose={this.onFormClose}
+                    onSave={this.onTodoSave}
+                    selectedTodo={this.state.selectedTodo} />
             </section>
         );
     }

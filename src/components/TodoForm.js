@@ -8,6 +8,15 @@ class TodoForm extends Component {
 
     state = {};
 
+    componentWillReceiveProps(nextProps) {
+        const selectedTodo = nextProps.selectedTodo;
+        this.setState({
+            id: selectedTodo.id,
+            title: selectedTodo.title,
+            description: selectedTodo.description
+        })
+    }
+
     onTitleChange = (event) => {
         this.setState({ title: event.target.value })
     }
@@ -17,25 +26,21 @@ class TodoForm extends Component {
     }
 
     onSave = () => {
-        const { title, description } = this.state;
+        const {id, title, description } = this.state;
 
         if (!title || !description) {
             alert("Preencha o título e a descrição da tarefa.");
             return;
         }
 
-        this.props.onSave(title, description);
+        this.props.onSave(id, title, description);
     }
 
     render() {
-        // const showForm = this.props.showForm;
-        // const onClose = this.props.onClose;
-        // const onSave = this.props.onSave;
+
         const { showForm, onClose, } = this.props;
 
-        // const title = this.state.title;
-        // const description = this.state.description;
-        const { title, description } = this.props;
+        const { id, title, description } = this.state;
         return (
             <Modal show={showForm} onHide={onClose}>
                 <Modal.Header closeButton>
@@ -45,7 +50,7 @@ class TodoForm extends Component {
                     <form>
                         <FormGroup>
                             <ControlLabel> Cód. </ControlLabel>
-                            <FormControl value="" disabled />
+                            <FormControl value={id} disabled />
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel> Título </ControlLabel>
