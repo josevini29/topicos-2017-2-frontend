@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import {
-    Table, Button,
-    ButtonGroup
+    Button
 } from 'react-bootstrap';
 
 import TodoForm from '../components/TodoForm';
+import TodoTable from '../components/TodoTable';
 
 class TodoPage extends Component {
 
@@ -54,35 +54,6 @@ class TodoPage extends Component {
         })
     }
 
-    renderTodo = () => {
-        const todos = this.state.todos;
-
-        const todosComponents = todos.map((todo, index) => {
-            return (
-                <tr>
-                    <td>{todo.id}</td>
-                    <td>{todo.title}</td>
-                    <td>{todo.date}</td>
-                    <td>{todo.completed}</td>
-                    <td>
-                        <ButtonGroup bsSize="small">
-                            <Button bsStyle="warning"
-                                onClick={() => this.onEditarClick(todo)}>
-                                Editar
-                                </Button>
-                            <Button bsStyle="danger"
-                                onClick={() => this.onExcluirClick(todo)}>
-                                Excluir
-                            </Button>
-                        </ButtonGroup>
-                    </td>
-                </tr>
-            );
-        });
-
-        return todosComponents;
-    }
-
     onNovaTarefaClick = () => {
         this.setState({
             showForm: true,
@@ -111,16 +82,16 @@ class TodoPage extends Component {
 
     }
 
-    putTodo = (id,data) => { 
-        axios.put('http://localhost:3001/todos/'+id, data)
-        .then((response) => {
-            if (response.status === 200){
-                this.setState({showForm: false});
-                return this.getTodos();
-            }
-        }).catch((ex) => {
-            console.warn(ex);
-        })
+    putTodo = (id, data) => {
+        axios.put('http://localhost:3001/todos/' + id, data)
+            .then((response) => {
+                if (response.status === 200) {
+                    this.setState({ showForm: false });
+                    return this.getTodos();
+                }
+            }).catch((ex) => {
+                console.warn(ex);
+            })
     }
 
     postTodo = (data) => {
@@ -136,7 +107,7 @@ class TodoPage extends Component {
     }
 
     render() {
-
+        const todos = this.state.todos;
         return (
             <section>
                 <h1>Página de Tarefas</h1>
@@ -144,20 +115,9 @@ class TodoPage extends Component {
                     onClick={this.onNovaTarefaClick}>
                     Nova Tarefas
                 </Button>
-                <Table>
-                    <thead>
-                        <tr>
-                            <th>Cód.</th>
-                            <th>Título</th>
-                            <th>Data</th>
-                            <th>Concluída</th>
-                            <th>Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.renderTodo()}
-                    </tbody>
-                </Table>
+                <TodoTable todos={todos} 
+                onEditarClick={this.onEditarClick}
+                onExcluirClick={this.onExcluirClick} />
 
                 <TodoForm showForm={this.state.showForm}
                     onClose={this.onFormClose}
