@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import {
-    Button
+    Button,
 } from 'react-bootstrap';
 
 import TodoForm from '../components/TodoForm';
@@ -50,8 +50,8 @@ class TodoPage extends Component {
     onEditarClick = (todo) => {
         this.setState({
             showForm: true,
-            selectedTodo: todo
-        })
+            selectedTodo: todo,
+        });
     }
 
     onNovaTarefaClick = () => {
@@ -60,7 +60,7 @@ class TodoPage extends Component {
             selectedTodo: {
                 id: '',
                 title: '',
-                description: ''
+                description: '',
             }
         })
     }
@@ -74,24 +74,13 @@ class TodoPage extends Component {
             title: title,
             description: description
         };
+
         if (id) {
             this.putTodo(id, data);
         } else {
             this.postTodo(data);
         }
 
-    }
-
-    putTodo = (id, data) => {
-        axios.put('http://localhost:3001/todos/' + id, data)
-            .then((response) => {
-                if (response.status === 200) {
-                    this.setState({ showForm: false });
-                    return this.getTodos();
-                }
-            }).catch((ex) => {
-                console.warn(ex);
-            })
     }
 
     postTodo = (data) => {
@@ -106,23 +95,59 @@ class TodoPage extends Component {
             })
     }
 
+    putTodo = (id, data) => {
+        const url = 'http://localhost:3001/todos/' + id;
+        axios.put(url, data)
+            .then((response) => {
+                if (response.status === 200) {
+                    this.setState({ showForm: false });
+                    return this.getTodos();
+                }
+            }).catch((ex) => {
+                console.warn(ex);
+            })
+    }
+
+    onConcluidaChange = (todoId, concluida) => {
+        let method;
+        if (concluida) {
+            method = axios.put;
+        } else {
+            method = axios.delete;
+        }
+
+        method(`http://localhost:3001/todos/${todoId}/completed`)
+        .then((response) => {
+            if (response.status === 204) {
+                return this.getTodos();
+            }
+        }).catch((ex) => {
+            console.error(ex, ex.response);
+        })
+    }
+
     render() {
         const todos = this.state.todos;
+
         return (
             <section>
                 <h1>Página de Tarefas</h1>
+
                 <Button bsSize="small" bsStyle="success"
                     onClick={this.onNovaTarefaClick}>
-                    Nova Tarefas
+                    Nova Tarefa
                 </Button>
-                <TodoTable todos={todos} 
-                onEditarClick={this.onEditarClick}
-                onExcluirClick={this.onExcluirClick} />
+
+                <TodoTable todos={todos}
+                    onEditarClick={this.onEditarClick}
+                    onExcluirClick={this.onExcluirClick}
+                    onConcluidaChange={this.onConcluidaChange} />
 
                 <TodoForm showForm={this.state.showForm}
                     onClose={this.onFormClose}
                     onSave={this.onTodoSave}
                     selectedTodo={this.state.selectedTodo} />
+
             </section>
         );
     }

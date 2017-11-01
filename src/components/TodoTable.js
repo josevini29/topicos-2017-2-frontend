@@ -1,27 +1,40 @@
 import React, { Component } from 'react';
 
 import {
-    Table, Button,
-    ButtonGroup
+    Table, Button, ButtonToolbar,
+    ButtonGroup, ToggleButtonGroup, ToggleButton
 } from 'react-bootstrap';
 
+import moment from 'moment';
+
 class TodoTable extends Component {
+
     renderTodo = () => {
-        const {todos, onEditarClick, onExcluirClick} = this.props;
+        const { todos, onEditarClick, onExcluirClick, onConcluidaChange } = this.props;
 
         const todosComponents = todos.map((todo, index) => {
             return (
                 <tr>
                     <td>{todo.id}</td>
                     <td>{todo.title}</td>
-                    <td>{todo.date}</td>
-                    <td>{todo.completed}</td>
+                    <td>{moment(todo.creation_date).format('DD/MM/YYYY [às] HH:mm')}</td>
+                    <td>
+                        <ButtonToolbar>
+                            <ToggleButtonGroup bsSize="small" type="radio"
+                                onChange={(concluida) => onConcluidaChange(todo.id, concluida)}
+                                name="completed" value={todo.completed}>
+                                <ToggleButton value={true}>Concluída</ToggleButton>
+                                <ToggleButton value={false}>Pendente</ToggleButton>
+                            </ToggleButtonGroup>
+                        </ButtonToolbar>
+                    </td>
                     <td>
                         <ButtonGroup bsSize="small">
                             <Button bsStyle="warning"
                                 onClick={() => onEditarClick(todo)}>
                                 Editar
-                                </Button>
+                            </Button>
+
                             <Button bsStyle="danger"
                                 onClick={() => onExcluirClick(todo)}>
                                 Excluir
@@ -34,7 +47,6 @@ class TodoTable extends Component {
 
         return todosComponents;
     }
-
 
     render() {
         return (
@@ -54,6 +66,7 @@ class TodoTable extends Component {
             </Table>
         )
     }
+
 }
 
 export default TodoTable;
